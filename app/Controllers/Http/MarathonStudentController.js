@@ -6,7 +6,9 @@
 
 const MarathonStudent = use("App/Models/MarathonStudent");
 const CourseStudent = use("App/Models/CourseStudent");
+const ClassStudent = use("App/Models/ClassStudent");
 const Course = use("App/Models/Course");
+const Class = use("App/Models/Class");
 
 /**
  * Resourceful controller for interacting with marathonstudents
@@ -42,19 +44,47 @@ class MarathonStudentController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store({ request, response }) {
+  async store({ params: { id }, request, response }) {
     const { marathon_id, student_id } = request.all();
 
-    console.log(marathon_id);
-
     // Achar o primeiro curso da Maratona
-    let course = await Course.query()
+    const courses = await Course.query()
       .where("marathon_id", marathon_id)
+      // .where("id", 1)
       .fetch();
 
-    console.log(course);
+    const course = await courses.toJSON().shift();
 
-    return response.status(200).send(course);
+    // Achar a primeira aula do Curso
+    let classItem = await Class.query()
+      .where("course_id", course.id)
+      .fetch();
+
+    classItem = classItem.toJSON();
+    classItem = classItem[0];
+
+    const addMarathon = await MarathonStudent.create({
+      parent_id: id,
+      student_id,
+      marathon_id,
+      status: "pending"
+    });
+
+    const addCourse = await CourseStudent.create({
+      student_id,
+      marathon_id,
+      course_id: course.id,
+      status: "pending"
+    });
+
+    const addClass = await ClassStudent.create({
+      student_id,
+      course_id: course.id,
+      class_id: classItem.id,
+      status: "pending"
+    });
+
+    return response.status(200).send(addClass);
   }
 
   /**

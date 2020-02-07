@@ -37,5 +37,14 @@ Route.post("parents", "ParentController.store");
 // Cadastro do Student, com o preenchimento da Pivot Table Parent_Student
 Route.post("parents/:id/students", "StudentController.store");
 
-// Pai cadastro o filho em uma maratona, e preenche a tabela de courses_students junto.
+// Pai cadastro o filho em uma maratona, e preenche a tabela de courses_students, classes_students junto.
 Route.post("parents/:id/marathons-students", "MarathonStudentController.store");
+
+// Filho clica no botao do modal quando ele terminou a aula, mudando o status da aula, e liberando a prova para o aluno.
+Route.post("students/:id/exams-students", "ExamStudentController.initialExam");
+
+// Filho clica no botao do modal quando ele terminou a prova, mudando o status da prova, e liberando o curso seguinte para o aluno.
+Route.post(
+  "students/:id/courses-students",
+  "CourseStudentController.initialNextCourse"
+);
